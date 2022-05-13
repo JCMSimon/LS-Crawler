@@ -12,8 +12,7 @@ class Screenshot:
 		self.URL = URL
 		self.page = BeautifulSoup(self.getPage(), 'html.parser')
 		self.imageURL = self.getImage()
-		self.getImageSize()
-		self.downloadImage()
+		self.ImageSizeInBytes = self.getImageSize()
 
 	def getPage(self):
 		return urllib.request.urlopen(urllib.request.Request(self.URL,headers={'User-Agent': 'Mozilla/5.0'})).read().decode('ISO-8859-1')
@@ -27,7 +26,7 @@ class Screenshot:
 
 	def getImageSize(self):
 		# kinda inaccurate for some reason smth smth downloading
-		self.ImageSizeInBytes = requests.get(self.imageURL, stream = True).headers['Content-length']
+		return requests.get(self.imageURL, stream = True).headers['Content-length']
 
 	def downloadImage(self,filename = "InDev.png", path = "./"):
 		self.ImagePath = path + filename
@@ -35,9 +34,6 @@ class Screenshot:
 			f.write(requests.get(self.imageURL).content)
 
 if __name__ == '__main__':
-	print("Test that should work")
-	URL = 'https://prnt.sc/1vfw3wr'
-	screenshot = Screenshot(URL)
-	#print("Test that should not work")
-	#URL = 'https://prnt.sc/0vfw3wr'
-	#screenshot = Screenshot(URL)
+	screenshot = Screenshot("https://prnt.sc/1vfw3wr")
+	print(screenshot.imageURL)
+	print(screenshot.ImageSizeInBytes + " bytes")
