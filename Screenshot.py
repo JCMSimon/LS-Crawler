@@ -1,8 +1,10 @@
-from bs4 import BeautifulSoup
 from requests.exceptions import MissingSchema
+from bs4 import BeautifulSoup
+from PIL import Image
 import urllib.request
 import requests
 import shutil
+import time
 import os
 
 class Screenshot:
@@ -14,34 +16,38 @@ class Screenshot:
 		self.URL = URL
 		page = BeautifulSoup(self.getPage(), 'html.parser')
 		self.imageURL = self.getImage(page)
-		print(self.imageURL)
+		timestamp = time.strftime("%H%M%S%Y")
+		self.downloadImage(filename = str(timestamp))
 
 	def getPage(self):
-		return urllib.request.urlopen(urllib.request.Request(self.URL,headers={'User-Agent': 'LS-Crawlercls'})).read().decode('ISO-8859-1')
+		return urllib.request.urlopen(urllib.request.Request(self.URL,headers={'User-Agent': 'Mozilla/5.0'})).read().decode('ISO-8859-1')
 
 	def getImage(self,page):
 		imageURLs = page.find_all('img')
 		if len(imageURLs) != self.expectedImageAmount:
-			raise Exception(f"[INFO] {self.URL} is invalid.")
+			print(imageURLs)
+			raise ValueError(f"[INFO] {self.URL} is invalid.")
 		else:
 			return imageURLs[self.realImageIndex]['src']
 
-	def downloadImage(self,filename = "InDev.png", path = "./Screenshots/"):
-		try:
-			#* Using a User Agent to not be *sus*
-			with requests.get(self.imageURL,headers={'User-Agent': 'LS-Crawler'}, stream=True) as url:
-				with open(path + filename, "wb") as file:
-					shutil.copyfileobj(url.raw, file)
-		except MissingSchema:
-			raise Exception(f"[INFO] {self.URL} is invalid.")
-		except FileNotFoundError:
-			os.makedirs(path)
-			self.downloadImage()
+	def downloadImage(self,filename = "idk", path = "./Screenshots/"):
+		if not os.path.isfile(f"{path}{filename}.png"):
+			try:
+				#* Using a User Agent to not be *sus*
+				with requests.get(self.imageURL,headers={'User-Agent': 'Mozilla/5.0'}, stream=True) as url:
+					with open(path + filename + ".png", "wb") as file:
+						shutil.copyfileobj(url.raw, file)
+				self.path = path + filename
+			except MissingSchema:
+				print("yo fuck up")
+				raise ValueError(f"[INFO] {self.URL} is invalid.")
+			except FileNotFoundError:
+				os.makedirs(path)
+				self.downloadImage(filename = filename)
+
+	def destroy(self):
+		del self
 
 if __name__ == '__main__':
 	#* Works
-	screenshot = Screenshot("https://prnt.sc/1vfidg")
-	screenshot.downloadImage()
-	#! Fails
-	screenshot = Screenshot("https://prnt.sc/1vfh5g")
-	screenshot.downloadImage()
+	screenshot = Screenshot("https://prnt.sc/av3ghr")

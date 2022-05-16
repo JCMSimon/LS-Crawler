@@ -1,7 +1,14 @@
 import dearpygui.dearpygui as dpg
-
+from io import BytesIO
+import win32clipboard
+from Crawler import LSCrawler
+from PIL import Image
+import os
 class GUI:
 	def __init__(self):
+		self.Logic = LSCrawler()
+		self.Screenshot = None
+
 		dpg.create_context()
 		dpg.create_viewport(title='LS-Crawler', width=648, height=284)
 		dpg.setup_dearpygui()
@@ -30,21 +37,39 @@ class GUI:
 		dpg.set_primary_window("Window", True)
 
 	def nextImg(self):
-		print("Next image")
+		if self.Screenshot != None:
+			self.Screenshot.destroy()
+		self.Screenshot = self.Logic.createScreenshotClass(self.Logic.genURL())
+		print(f"Next image: {self.screenshotURL}")
 
 	def copyImg(self):
+		path = self.Screenshot.path
+		image = Image.open(path)
+		send_to_clipboard(image)
 		print("Copy image")
 
 	def openUrl(self):
-		print("Open image url")
+		os.system(f"start {self.Screenshot.imageURL} && exit")
+		print(f"Open image url: {self.screenshotURL}")
 
 	def copyUrl(self):
-		print("Copy image url")
+		# copy self.screenshotURL to clipboard
+		os.system(f"echo {self.Screenshot.imageURL} | clip")
+		print(f"Copy image url: {self.screenshotURL}")
 
 	def run(self):
 		dpg.start_dearpygui()
 		dpg.destroy_context()
 
+def send_to_clipboard(image):
+    output = BytesIO()
+    image.convert('RGB').save(output, 'BMP')
+    data = output.getvalue()[14:]
+    output.close()
+    win32clipboard.OpenClipboard()
+    win32clipboard.EmptyClipboard()
+    win32clipboard.SetClipboardData(win32clipboard.CF_DIB, data)
+    win32clipboard.CloseClipboard()
 
 gui = GUI()
 

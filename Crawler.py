@@ -16,7 +16,9 @@ class LSCrawler:
 
 	def createScreenshotClass(self, code):
 		try:
-			return Screenshot(f"https://prnt.sc/{code}")
-		except Exception:
+			print(f"stuff {code}")
+			thing = Screenshot(f"https://prnt.sc/{code}")
+			return thing
+		except ValueError:
 			newCode = self.genURL()
 			self.createScreenshotClass(newCode)
