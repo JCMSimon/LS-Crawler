@@ -18,16 +18,15 @@ class GUI:
 		self.run()
 
 	def mainWindow(self):
-
-		#TODO add registry shits
-		#TODO add sample image to it from assets
-		#TODO add button with said image on the left side
-		#TODO resize image to button dimensions
-
-		#TODO add text as disclaimer that image can be distorted
-		#TODO image button opens image in original size in a popup
-
 		with dpg.window(tag="Window"):
+			# dpg.add_image_button(
+			# 	name = "ImageButton",
+			# 	value="./assets/placeholder.png",
+			# 	height = 100,
+			# 	width= 100,
+			# 	callback = self.testfnc(),
+			# 	texture_tag=0
+			# )
 			dpg.add_button(label="Next Image",callback=self.nextImg, pos=(324,25), width=300, height=40)
 			dpg.add_button(label="Copy Image",callback=self.copyImg, pos=(324,77), width=300, height=40)
 			dpg.add_button(label="Open Image URL",callback=self.openUrl, pos=(324,129), width=300, height=40)
@@ -36,11 +35,18 @@ class GUI:
 	def setWindowAsPrimary(self):
 		dpg.set_primary_window("Window", True)
 
+	def addImage(self, image):
+		width, height, _, data = dpg.load_image(str(image))
+
+		with dpg.texture_registry():
+			test = dpg.add_dynamic_texture(width, height, data)
+			return test
+
 	def nextImg(self):
 		if self.Screenshot != None:
 			self.Screenshot.destroy()
 		self.Screenshot = self.Logic.createScreenshotClass(self.Logic.genURL())
-		print(f"Next image: {self.screenshotURL}")
+		print(f"Next image: {self.Screenshot.prntURL}")
 
 	def copyImg(self):
 		path = self.Screenshot.path
@@ -56,6 +62,8 @@ class GUI:
 		# copy self.screenshotURL to clipboard
 		os.system(f"echo {self.Screenshot.imageURL} | clip")
 		print(f"Copy image url: {self.screenshotURL}")
+		tes = self.addImage("./assets/placeholder.png")
+		print(tes)
 
 	def run(self):
 		dpg.start_dearpygui()

@@ -11,22 +11,22 @@ class Screenshot:
 	def __init__(self, URL):
 		#Settings for future easy updates
 		self.expectedImageAmount = 3
-		self.realImageIndex = 0 #counting from 0
+		self.realImageIndex = 0
 		#Settings over
-		self.URL = URL
+		self.prntURL = URL
 		page = BeautifulSoup(self.getPage(), 'html.parser')
 		self.imageURL = self.getImage(page)
 		timestamp = time.strftime("%H%M%S%Y")
 		self.downloadImage(filename = str(timestamp))
 
 	def getPage(self):
-		return urllib.request.urlopen(urllib.request.Request(self.URL,headers={'User-Agent': 'Mozilla/5.0'})).read().decode('ISO-8859-1')
+		return urllib.request.urlopen(urllib.request.Request(self.prntURL,headers={'User-Agent': 'Mozilla/5.0'})).read().decode('ISO-8859-1')
 
 	def getImage(self,page):
 		imageURLs = page.find_all('img')
 		if len(imageURLs) != self.expectedImageAmount:
 			print(imageURLs)
-			raise ValueError(f"[INFO] {self.URL} is invalid.")
+			raise ValueError(f"[INFO] {self.prntURL} is invalid.")
 		else:
 			return imageURLs[self.realImageIndex]['src']
 
@@ -39,8 +39,7 @@ class Screenshot:
 						shutil.copyfileobj(url.raw, file)
 				self.path = path + filename
 			except MissingSchema:
-				print("yo fuck up")
-				raise ValueError(f"[INFO] {self.URL} is invalid.")
+				print("shit")
 			except FileNotFoundError:
 				os.makedirs(path)
 				self.downloadImage(filename = filename)
@@ -49,5 +48,6 @@ class Screenshot:
 		del self
 
 if __name__ == '__main__':
-	#* Works
-	screenshot = Screenshot("https://prnt.sc/av3ghr")
+	screenshot = Screenshot("https://prnt.sc/0v3ghr")
+	print(screenshot.prntURL)
+	print(screenshot.imageURL)
