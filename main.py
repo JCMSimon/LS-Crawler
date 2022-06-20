@@ -1,4 +1,3 @@
-import dearpygui.dearpygui as dpg
 from io import BytesIO
 import win32clipboard
 from Crawler import LSCrawler
@@ -9,31 +8,6 @@ class GUI:
 		self.Logic = LSCrawler()
 		self.Screenshot = None
 
-		dpg.create_context()
-		dpg.create_viewport(title='LS-Crawler', width=648, height=284)
-		dpg.setup_dearpygui()
-		dpg.show_viewport()
-		self.mainWindow()
-		self.setWindowAsPrimary()
-		self.run()
-
-	def mainWindow(self):
-		with dpg.window(tag="Window"):
-			# dpg.add_image_button(
-			# 	name = "ImageButton",
-			# 	value="./assets/placeholder.png",
-			# 	height = 100,
-			# 	width= 100,
-			# 	callback = self.testfnc(),
-			# 	texture_tag=0
-			# )
-			dpg.add_button(label="Next Image",callback=self.nextImg, pos=(324,25), width=300, height=40)
-			dpg.add_button(label="Copy Image",callback=self.copyImg, pos=(324,77), width=300, height=40)
-			dpg.add_button(label="Open Image URL",callback=self.openUrl, pos=(324,129), width=300, height=40)
-			dpg.add_button(label="Copy Image URL",callback=self.copyUrl, pos=(324,181), width=300, height=40)
-
-	def setWindowAsPrimary(self):
-		dpg.set_primary_window("Window", True)
 
 	def addImage(self, image):
 		width, height, _, data = dpg.load_image(str(image))
@@ -65,9 +39,6 @@ class GUI:
 		tes = self.addImage("./assets/placeholder.png")
 		print(tes)
 
-	def run(self):
-		dpg.start_dearpygui()
-		dpg.destroy_context()
 
 def send_to_clipboard(image):
     output = BytesIO()
