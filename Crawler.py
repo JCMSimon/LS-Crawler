@@ -62,8 +62,8 @@ class LSCrawler:
 			self.nextImage()
 		else:
 			image = Image.open(os.path.expandvars(self.ImageData["ImagePath"]))
-			image.resize((259,194), Image.ANTIALIAS).save(os.path.expandvars(str(self.ImageData["ImagePath"]).replace("/Screenshots","/Screenshots/resized")))
-			self.setImageToPreview(os.path.expandvars(self.ImageData["ImagePath"]).replace("/Screenshots","/Screenshots/resized"))
+			image.resize((259,194), Image.ANTIALIAS).save(os.path.expandvars(str(self.ImageData["ImagePath"]).replace("/Screenshots","/Screenshots/preview")))
+			self.setImageToPreview(os.path.expandvars(self.ImageData["ImagePath"]).replace("/Screenshots","/Screenshots/preview"))
 
 	def copyImage(self):
 		try:
@@ -125,8 +125,8 @@ class LSCrawler:
 	def folderSetup(self):
 		if not os.path.exists(os.path.expandvars("%appdata%/LSCrawler/Screenshots")):
 			os.makedirs(os.path.expandvars("%appdata%/LSCrawler/Screenshots"))
-		if not os.path.exists(os.path.expandvars("%appdata%/LSCrawler/Screenshots/resized")):
-			os.makedirs(os.path.expandvars("%appdata%/LSCrawler/Screenshots/resized"))
+		if not os.path.exists(os.path.expandvars("%appdata%/LSCrawler/Screenshots/preview")):
+			os.makedirs(os.path.expandvars("%appdata%/LSCrawler/Screenshots/preview"))
 
 	def placeholder(self):
 		pass
