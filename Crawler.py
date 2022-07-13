@@ -1,8 +1,10 @@
 import os
 import shutil
+import time
 from bs4 import BeautifulSoup
 import dearpygui.dearpygui as dpg
 import random
+from PIL import Image
 
 import urllib.request
 import requests
@@ -20,7 +22,7 @@ class LSCrawler:
 
 		#GUI
 		dpg.create_context()
-		dpg.create_viewport(title='LS-Crawler', width=562, height=250)
+		dpg.create_viewport(title='LS-Crawler', width=562, height=250, resizable=False)
 		dpg.setup_dearpygui()
 		dpg.show_viewport()
 		self.initMainWindow()
@@ -53,20 +55,22 @@ class LSCrawler:
 ####################################################
 
 	def nextImage(self):
+		self.setImageToPreview("./assets/download.png") #placeholder for a loading thingy
 		self.ImageData = self.downloadImage(self.genURLCode())
 		if not self.ImageData:
 			debugPrint("Failed to download image. Trying again.")
 			self.nextImage()
 		else:
-			self.setImageToPreview(self.ImageData["ImagePath"])
+			image = Image.open(os.path.expandvars(self.ImageData["ImagePath"]))
+			image.resize((259,194), Image.ANTIALIAS).save(os.path.expandvars(str(self.ImageData["ImagePath"]).replace("/Screenshots","/Screenshots/resized")))
+			self.setImageToPreview(os.path.expandvars(self.ImageData["ImagePath"]).replace("/Screenshots","/Screenshots/resized"))
 
 	def copyImage(self):
 		try:
 			path = os.path.expandvars(self.ImageData["ImagePath"])
-
-
 		except KeyError:
 			os.system("echo " + "I tried to copy a Image before i generated a Image. Man i am dumb lol" + " | clip")
+
 
 	def copyImageURL(self):
 		try:
@@ -76,8 +80,9 @@ class LSCrawler:
 
 	def setImageToPreview(self, path):
 		with dpg.texture_registry():
-			_, _, _, data = dpg.load_image("./assets/placeholder.png")
-			dpg.set_value(self.texture_id, data=data)
+			_, _, _, data = dpg.load_image(f"{path}")
+			dpg.set_value(item = self.texture_id, value = data)
+			debugPrint("Updated Image Preview")
 
 ####################################################
 #      Functions below do the actual work          #
@@ -120,6 +125,8 @@ class LSCrawler:
 	def folderSetup(self):
 		if not os.path.exists(os.path.expandvars("%appdata%/LSCrawler/Screenshots")):
 			os.makedirs(os.path.expandvars("%appdata%/LSCrawler/Screenshots"))
+		if not os.path.exists(os.path.expandvars("%appdata%/LSCrawler/Screenshots/resized")):
+			os.makedirs(os.path.expandvars("%appdata%/LSCrawler/Screenshots/resized"))
 
 	def placeholder(self):
 		pass
