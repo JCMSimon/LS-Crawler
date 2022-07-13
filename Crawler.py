@@ -1,10 +1,12 @@
 import os
 import shutil
-import time
 from bs4 import BeautifulSoup
 import dearpygui.dearpygui as dpg
 import random
 from PIL import Image
+import win32clipboard
+from io import BytesIO
+import webbrowser
 
 import urllib.request
 import requests
@@ -35,7 +37,7 @@ class LSCrawler:
 			self.texture_id = dpg.add_dynamic_texture(width, height, data, tag="ImagePreview")
 		with dpg.window(tag="Window"):
 			#Image Button
-			dpg.add_image_button(texture_tag=self.texture_id,width=200,height=175,pos=(12,12))
+			dpg.add_image_button(texture_tag=self.texture_id,width=200,height=175,pos=(12,12),callback=self.openImage)
 			#Next Image Button
 			dpg.add_button(label="Next Image",callback=self.nextImage, pos=(232,14), width=300, height=50)
 			#Copy Image Button
@@ -62,31 +64,37 @@ class LSCrawler:
 			self.nextImage()
 		else:
 			image = Image.open(os.path.expandvars(self.ImageData["ImagePath"]))
-			image.resize((259,194), Image.ANTIALIAS).save(os.path.expandvars(str(self.ImageData["ImagePath"]).replace("/Screenshots","/Screenshots/preview")))
+			image.resize((259,194)).save(os.path.expandvars(str(self.ImageData["ImagePath"]).replace("/Screenshots","/Screenshots/preview")))
 			self.setImageToPreview(os.path.expandvars(self.ImageData["ImagePath"]).replace("/Screenshots","/Screenshots/preview"))
 
 	def copyImage(self):
 		try:
 			path = os.path.expandvars(self.ImageData["ImagePath"])
-		except KeyError:
+		except (KeyError, AttributeError):
 			os.system("echo " + "I tried to copy a Image before i generated a Image. Man i am dumb lol" + " | clip")
-
+			self.sendToClipboard(os.path.expandvars(self.ImageData["ImagePath"]))
 
 	def copyImageURL(self):
 		try:
 			os.system("echo " + self.ImageData["ImageURL"] + " | clip")
-		except KeyError:
+		except (KeyError, AttributeError):
 			os.system("echo " + "I tried to copy a Image Url before i generated a Image. Man i am dumb lol" + " | clip")
+
+	def openImage(self):
+		try:
+			webbrowser.open(self.ImageData["ImageURL"])
+		except (KeyError, AttributeError):
+			debugPrint("No Image to open")
+
+####################################################
+#      Functions below do the actual work          #
+####################################################
 
 	def setImageToPreview(self, path):
 		with dpg.texture_registry():
 			_, _, _, data = dpg.load_image(f"{path}")
 			dpg.set_value(item = self.texture_id, value = data)
 			debugPrint("Updated Image Preview")
-
-####################################################
-#      Functions below do the actual work          #
-####################################################
 
 	def downloadImage(self, code):
 		debugPrint("#####Start of Download Thread#####")
@@ -127,6 +135,20 @@ class LSCrawler:
 			os.makedirs(os.path.expandvars("%appdata%/LSCrawler/Screenshots"))
 		if not os.path.exists(os.path.expandvars("%appdata%/LSCrawler/Screenshots/preview")):
 			os.makedirs(os.path.expandvars("%appdata%/LSCrawler/Screenshots/preview"))
+
+	def sendToClipboard(self,path):
+		image = Image.open(path)
+		output = BytesIO()
+		image.convert('RGB').save(output, 'BMP')
+		data = output.getvalue()[14:]
+		output.close()
+
+		win32clipboard.OpenClipboard()
+		win32clipboard.EmptyClipboard()
+		win32clipboard.SetClipboardData(win32clipboard.CF_DIB, data)
+		win32clipboard.CloseClipboard()
+
+
 
 	def placeholder(self):
 		pass
